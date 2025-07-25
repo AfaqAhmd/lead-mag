@@ -231,7 +231,7 @@ async function runAudit() {
   loading.style.display = 'block';
 
   try {
-   const response = await fetch('/api/server', {
+   const response = await fetch('/api/audit', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ domain })
