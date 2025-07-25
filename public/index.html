@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" href="./android-chrome-192x192.png" type="image/x-icon">
+<title>Ad Spend Audit Tool</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0  auto;
+    padding: 0;
+    background: linear-gradient(325deg, rgba(52, 184, 209, 1) 57%, rgba(39, 145, 199, 1) 93%);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */
+    margin-top: 50px;
+    max-width: 1200px;
+
+  }
+
+  h2 {
+    font-size: 2rem;
+    background: #f9f9f9;
+    color: #2996C8;
+    border-radius: 30px;
+    padding: 5px 15px;
+    display: inline-block;
+  }
+
+  h1 {
+    font-size: 3rem;
+    margin: 0.3rem 0 2rem;
+  }
+
+  .input-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 40px;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+.input-btn div {
+  width: 100%;
+}
+
+
+
+  input {
+    padding: 15px;
+    font-size: 1rem;
+    width: 100%;
+    /* max-width: 500px; */
+    border-radius: 12px;
+    border: none;
+  }
+
+  button {
+    background: #f9f9f9;
+    color: #2996C8;
+    border: 3px solid #f9f9f9;
+    font-size: 1.2rem;
+    padding: 10px 15px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 auto;
+  }
+  button img{
+    width: 30px;
+  }
+
+  button:hover {
+    border-color: #30A1DB;
+  }
+
+  #loading {
+    display: none;
+    margin-top: 1rem;
+    color: #ff0;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+
+  .results {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .card {
+    background: #f9f9f9;
+    color: #333;
+    padding: 1rem;
+    border-radius: 15px;
+    min-width: 255px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-around;
+    width: 320px;
+  }
+
+  .card h3{
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  .card strong {
+    display: block;
+    font-size: 1.5rem;
+    margin-top: 0.5rem;
+    color: black;
+  }
+
+  .card img{
+    width: 50px;
+  }
+  .card strong a{
+    color: black;
+    font-size: 0.8rem;
+  }
+   .card strong a:hover{
+    color: #2996C8;
+  }
+  .disc{
+    text-align: center;
+  }
+
+
+
+  @media (max-width: 768px) {
+  h1 {
+    font-size: 2.2rem;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .input-btn {
+    padding: 0 1rem;
+    align-items: center;
+  }
+
+  .input-btn div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+  }
+
+  .input-btn input {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  button {
+    align-self: center;
+    width: 100%;
+  }
+}
+
+/* @media (max-width: 768px) {
+  h1 {
+    font-size: 2.8rem;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  .input-btn {
+  padding: 0 2rem;
+}
+input{
+  width: 80%;
+}
+  } */
+</style>
+</head>
+
+<body>
+  <!-- <h2>Calculate your wasted</h2> -->
+  <h1>Calculate your wasted Ads spend now</h1>
+
+  <div class="input-btn">
+    <div>
+      <label for="domain">Website URL</label>
+      <input type="text" id="domain" placeholder="www.website.com">
+    </div>
+
+    <div>
+      <label for="meta">Avg. monthly Meta ad spend (USD)</label>
+      <input type="text" id="metaAds" placeholder="e.g. 10000">
+    </div>
+
+    <div>
+      <label for="google">Avg. monthly Google ad spend (USD)</label>
+      <input type="text" id="googleAds" placeholder="e.g. 20000">
+    </div>
+
+
+    <button onclick="runAudit()">Calculate wasted Ads spend <img src="./img-audit.png" alt=""></button>
+  </div>
+
+  <div id="loading">Auditing... Please wait</div>
+
+  <div class="results" id="results"></div>
+
+<script>
+
+async function runAudit() {
+  const domain = document.getElementById('domain').value.trim();
+  const results = document.getElementById('results');
+  const loading = document.getElementById('loading');
+  results.innerHTML = '';
+  loading.style.display = 'block';
+
+  try {
+    const response = await fetch('http://localhost:3001/api/audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ domain})
+    });
+
+    if (!response.ok) {
+      throw new Error('Invalid response from server');
+    }
+
+    const data = await response.json();
+    loading.style.display = 'none';
+
+  const { meta, google } = data;
+
+const facebookPage = meta?.page_url || 'N/A';
+const metaAdCount = meta?.number_of_ads || 0;
+const googleAdCount = google?.total_ad_count || 0;
+
+// Get spend values from input fields
+const metaSpendInput = parseFloat(document.getElementById('metaAds').value) || 0;
+const googleSpendInput = parseFloat(document.getElementById('googleAds').value) || 0;
+
+const metaSpend = metaSpendInput;
+const googleSpend = googleSpendInput;
+const totalSpend = metaSpend + googleSpend;
+
+// Determine base waste %
+let baseWasteRate = totalSpend < 50000 ? 0.30 : 0.20;
+
+// Platform Modifier
+const platformsUsed = (metaAdCount > 0 ? 1 : 0) + (googleAdCount > 0 ? 1 : 0);
+if (platformsUsed > 1) baseWasteRate += 0.05;
+
+const potentialWaste = totalSpend * baseWasteRate;
+
+results.innerHTML = `
+    
+  <div class="card">
+    <img src="./icon2.png">
+    <div>
+      <h3>Meta Ad Count</h3>
+      <strong>${metaAdCount}</strong>
+    </div>
+  </div>
+  <div class="card">
+    <img src="./icon2.png">
+    <div>
+      <h3>Google Ad Count</h3>
+      <strong>${googleAdCount}</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="./icon3.png">
+    <div>
+      <h3>Estimated Waste</h3>
+      <strong>$${potentialWaste.toLocaleString()}</strong>
+    </div>
+  </div>
+
+  <div class="disc"><h4>* Estimate based on 500+ audited accounts. Actual waste varies. Comprehensive audit required for precise calculation.</h4></div>
+`;
+
+
+  } catch (err) {
+    loading.style.display = 'none';
+    results.innerHTML = `<div class="card" style="background:#fdd;color:#900;">Error: ${err.message}</div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loading').style.display = 'none';
+});
+</script>
+</body>
+</html>
