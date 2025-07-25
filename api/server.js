@@ -40,7 +40,8 @@ export default async function handler(req, res) {
       }
     });
   } catch (error) {
-    console.error('❌ API error:', error?.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to audit domain' });
-  }
+  console.error('❌ API error:', error?.response?.data || error.message || error);
+  res.status(500).json({ error: 'Failed to audit domain', details: error?.response?.data || error.message });
+}
+
 }
