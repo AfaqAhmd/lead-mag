@@ -231,11 +231,11 @@ async function runAudit() {
   loading.style.display = 'block';
 
   try {
-    const response = await fetch('http://localhost:3001/api/audit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ domain})
-    });
+   const response = await fetch('/api/server', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ domain })
+});
 
     if (!response.ok) {
       throw new Error('Invalid response from server');
